@@ -1,13 +1,23 @@
-import { BrowserRouter as Router, Routes, Route, Link, NavLink } from "react-router-dom";
+import { HashRouter as Router, Routes, Route, Link, NavLink } from "react-router-dom";
 import { useState, useEffect } from "react";
 import "./App.css";
 
+// BASE viene de vite.config.js (base: '.')
+const BASE = import.meta.env.BASE_URL || "/";
+
+// Helper para construir URLs correctas
+function imgFromPublic(pathWithLeadingSlash) {
+  return `${BASE}${pathWithLeadingSlash.replace(/^\//, "")}`;
+}
+
 const copy = {
   brand: "EDECOSMILE",
-  slogan: "Lo natural empieza en tú sonrisa",
-  cta: "Empieza ahora",
+  slogan: "Lo natural empieza en tu sonrisa",
+  cta: "Conoce más",
+  // ✅ NAVEGACIÓN CORREGIDA - Sin duplicados
   nav: [
-    { label: "PROFESIONALES", to: "/profesionales" },
+    { label: "INICIO", to: "/" },
+    { label: "SOBRE NOSOTROS", to: "/sobre-nosotros" },
     { label: "PRODUCTOS", to: "/departamentos/productos" },
     { label: "VÍDEOS", to: "/departamentos/videos" },
     { label: "ARTÍCULOS", to: "/departamentos/articulos" },
@@ -15,130 +25,122 @@ const copy = {
     { label: "PROFESIONALES", to: "/departamentos/profesionales" },
     { label: "RESEÑAS", to: "/resenas" },
     { label: "PROYECTO SOSTENIBLE", to: "/proyecto-sostenible" },
+    { label: "CONTACTO", to: "/contacto" },
   ],
 };
-
-// este array lo seguimos usando para el submenú interno de /departamentos/*
-const deptNav = [
-  { label: "PROFESIONALES",               to: "/departamentos/rofesionales" },
-  { label: "DESMINTIENDO MITOS",          to: "/departamentos/desmintiendo-mitos" },
-  { label: "PRODUCTOS",                   to: "/departamentos/productos" },
-  { label: "ARTÍCULOS",                   to: "/departamentos/articulos" },
-  { label: "VÍDEOS",                      to: "/departamentos/videos" },
-];
 
 const data = {
   reviews: [
     {
       name: "Alexa Young, CA",
       text:
-        "No sabía con certeza cómo usar el hilo dental apropiadamente y siempre lo ignoraba. Con Edocosmile aprendí a hacerlo correctamente, comprendiendo cuáles espacios limpiar, con qué frecuencia y por qué. Y también me explicaron que utilizar hilo no es un castigo, sino una parte de la rutina higiénica. Mi dentista se dio cuenta en mi última revisión que ahora lo hago cada noche. Me gusta que haya vídeos, desmitifiquen cosas antiguas y cuente con apoyo profesional cuando tengo dudas.",
+        "No sabía con certeza cómo usar el hilo dental apropiadamente y siempre lo ignoraba. Con Edecosmile aprendí a hacerlo correctamente, comprendiendo cuáles espacios limpiar, con qué frecuencia y por qué. Y también me explicaron que utilizar hilo no es un castigo, sino una parte de la rutina higiénica. Mi dentista se dio cuenta en mi última revisión que ahora lo hago cada noche. Me gusta que haya vídeos, desmitifiquen cosas antiguas y cuente con apoyo profesional cuando tengo dudas.",
       stars: 5,
     },
     { name: "María G.", text: "Trato excelente y resultados naturales.", stars: 5 },
     { name: "Carlos R.", text: "Muy profesionales, explican cada paso.", stars: 5 },
     { name: "Lucía P.", text: "Volveré sin duda.", stars: 4 },
   ],
+
   productos: [
     { name: "Pasta Vitis Anticaries", img: "/media/fotos/productos/producto-01.jpg", url: "https://vitis.es/productos-vitis/colutorios/vitis-anticaries/" },
     { name: "Colutorio Vitis Ortodoncia", img: "/media/fotos/productos/producto-02.png", url: "https://vitis.es/productos-vitis/colutorios/vitis-orthodontic-colutorio/" },
     { name: "Colutorio Vitis Anticaries ", img: "/media/fotos/productos/producto-03.png", url: "https://vitis.es/productos-vitis/colutorios/vitis-anticaries-colutorio/" },
-    { name: "Pasta dentrífrica Gingilacer", img: "/media/fotos/productos/producto-04.jpg", url: "https://www.nutritienda.com/es/lacer/gingilacer-pasta-dentifrica-200-ml/52678?gad_source=1&gad_campaignid=20274145903&gbraid=0AAAAADNFI0GWoo1cowbi_WOaYO2i5F29Q&gclid=CjwKCAjw04HIBhB8EiwA8jGNbXKeGnR7rfhyiJOvOsJPLAz41oIbgwNLq9X8wK5_V35TtuBB-He8OBoCJsoQAvD_BwE" },
-    { name: "Colutorio reducción de sangrado Gingilacer", img: "/media/fotos/productos/producto-05.jpg", url: "https://www.boticas23.com/gingilacer-colutorio-500ml.htm?gad_source=1&gad_campaignid=21569285982&gbraid=0AAAAADLFCRsDhCcDc-mh3i4uaTwHbg4EM&gclid=CjwKCAjw04HIBhB8EiwA8jGNbSjuNJcPr946swEMfHASMDfQTTLTJVIOQTp0AvBf8mjS9vFpQGD-gBoCH8AQAvD_BwE" },
+    { name: "Pasta dentrífrica Gingilacer", img: "/media/fotos/productos/producto-04.jpg", url: "https://www.nutritienda.com/es/lacer/gingilacer-pasta-dentifrica-200-ml/52678" },
+    { name: "Colutorio reducción de sangrado Gingilacer", img: "/media/fotos/productos/producto-05.jpg", url: "https://www.boticas23.com/gingilacer-colutorio-500ml.htm" },
     { name: "Seda dental suave Vitis", img: "/media/fotos/productos/producto-06.jpg", url: "https://vitis.es/productos-vitis/cintas-y-sedas-dentales/seda-dental-suave/" },
-    { name: "Pasta dental para dientes sensibles Sensodyne", img: "/media/fotos/productos/producto-07.jpg", url: "https://es.iherb.com/pr/sensodyne-fluoride-toothpaste-for-sensitive-teeth-mint-3-4-oz-96-4-g/94191?gad_campaignid=675868793&gad_source=1&gclid=CjwKCAjw04HIBhB8EiwA8jGNbfDWmxjWQvjAezBriUiu8H51F_jD3KjkukuphmJN0klLYcMb5kFaSxoCuv0QAvD_BwE&gclsrc=aw.ds" },
+    { name: "Pasta dental para dientes sensibles Sensodyne", img: "/media/fotos/productos/producto-07.jpg", url: "https://es.iherb.com/pr/sensodyne-fluoride-toothpaste-for-sensitive-teeth-mint-3-4-oz-96-4-g/94191" },
     { name: "Cepillo dental Sonic S10 Vitis", img: "/media/fotos/productos/producto-08.jpg", url: "https://vitis.es/productos-vitis/cepillos-dentales/vitis-sonic-s10/" },
-    { name: "Raspador lingual", img: "/media/fotos/productos/producto-09.jpg", url: "https://www.amazon.es/Raspador-lingual-Curaprox-CTC-bordes/dp/B00KTDBBQ0/ref=asc_df_B00KTDBBQ0?mcid=b029a3adbb3439ee8f91cf57e4d3790c&tag=googshopes-21&linkCode=df0&hvadid=704474534293&hvpos=&hvnetw=g&hvrand=10491177349092746638&hvpone=&hvptwo=&hvqmt=&hvdev=c&hvdvcmdl=&hvlocint=&hvlocphy=9061036&hvtargid=pla-618965267687&hvocijid=10491177349092746638-B00KTDBBQ0-&hvexpln=0&th=1" },
-    { name: "Pasta dental protección completa Parodontax", img: "/media/fotos/productos/producto-10.jpg", url: "https://es.iherb.com/pr/parodontax-daily-fluoride-anticavity-and-antigingivitis-toothpaste-complete-protection-pure-fresh-mint-3-4-oz-96-4-g/113210?gad_campaignid=23087078138&gad_source=1&gclid=CjwKCAjw04HIBhB8EiwA8jGNbRckGZFhDs1lIIXPjylEXR3_xUbFrAi5UWeFV-HV4uOfAh-10lyhSBoCoHMQAvD_BwE&gclsrc=aw.ds" },
-    { name: "Cepillo de dientes para bebés y niños Curaprox", img: "/media/fotos/productos/producto-11.jpg", url: "hhttps://curaprox.es/cepillos-de-dientes/cepillos-de-dientes-para-bebes-y-ninos/cepillo-dental-baby-p665#/286-baby_toothbrush_colors-verde_verde" },
-    { name: "Cepillos interdentales Curaprox", img: "/media/fotos/productos/producto-12.jpg", url: "https://curaprox.es/espacios-interdentales/cepillos-interdentales-especializados/juego-de-cepillos-interdentales-perio-start-tamano-405-5-uds-p701?utm_assetgroup=6544539532&utm_device=c&utm_loc_interest=&utm_loc_physical=9061036&utm_term=&utm_campaign=22099325265&utm_source=google&utm_medium=cpc&utm_content=&hsa_acc=4767268060&hsa_cam=22099325265&hsa_grp=&hsa_ad=&hsa_src=x&hsa_tgt=&hsa_kw=&hsa_mt=&hsa_net=adwords&hsa_ver=3&gad_source=1&gad_campaignid=22105605065&gbraid=0AAAAApJe5-gjozMhyeofv2Hw8RjI8W1qJ&gclid=CjwKCAjw04HIBhB8EiwA8jGNbfvrLCh4rcW_beWQJbAQ011ZcFFgCfXEEVqssXK5OpxpYA9P6sJ9RBoCSa4QAvD_BwE" },
+    { name: "Raspador lingual", img: "/media/fotos/productos/producto-09.jpg", url: "https://www.amazon.es/Raspador-lingual-Curaprox-CTC-bordes/dp/B00KTDBBQ0" },
+    { name: "Pasta dental protección completa Parodontax", img: "/media/fotos/productos/producto-10.jpg", url: "https://es.iherb.com/pr/parodontax-daily-fluoride-anticavity-and-antigingivitis-toothpaste-complete-protection-pure-fresh-mint-3-4-oz-96-4-g/113210" },
+    { name: "Cepillo de dientes para bebés y niños Curaprox", img: "/media/fotos/productos/producto-11.jpg", url: "https://curaprox.es/cepillos-de-dientes/cepillos-de-dientes-para-bebes-y-ninos/cepillo-dental-baby-p665" },
+    { name: "Cepillos interdentales Curaprox", img: "/media/fotos/productos/producto-12.jpg", url: "https://curaprox.es/espacios-interdentales/cepillos-interdentales-especializados/juego-de-cepillos-interdentales-perio-start-tamano-405-5-uds-p701" },
   ],
-  articulos: [
-  {
-    title: "Más que cepillarse: efecto de enjuagues + hilo dental en el control de placa",
-    cover: "/media/fotos/articulos/portada1.png",
-    excerpt:
-      "Este estudio analiza cómo la combinación de cepillado manual, uso de hilo dental y enjuagues bucales (especialmente sin alcohol) mejora la eliminación de placa, la inflamación gingival y el sangrado comparado sólo con cepillado.",
-    url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC10837857/"
-  },
-  {
-    title: "Microbioma de las encías: qué revelan los hábitos de higiene oral",
-    cover: "/media/fotos/articulos/portada2.png",
-    excerpt:
-      "Esta investigación evalúa la relación entre los hábitos de higiene bucal (frecuencia, uso de hilo, sangrado) y la diversidad bacteriana gingival en adultos, ofreciendo nuevas perspectivas para adaptar las recomendaciones profesionales.",
-    url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC9542802/"
-  },
-  {
-    title: "Salud bucal y envejecimiento: cambios en la flora oral con la edad",
-    cover: "/media/fotos/articulos/portada3.png",
-    excerpt:
-      "El estudio examina cómo el envejecimiento influye en el equilibrio del microbioma oral y la salud de las encías, identificando los principales factores asociados al deterioro de la flora protectora y al aumento de bacterias patógenas.",
-    url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC3894074/"
-  },
-  {
-    title: "¿Estás cepillando bien? Un estudio sobre técnica y efectividad del cepillado",
-    cover: "/media/fotos/articulos/portada4.png",
-    excerpt:
-      "Una revisión que compara la eficacia de distintas técnicas de cepillado manual en la eliminación de placa y el cuidado gingival, destacando la importancia de la orientación profesional y la regularidad del cepillado.",
-    url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC10327354/"
-  }
-],
 
+  articulos: [
+    {
+      title: "Más que cepillarse: efecto de enjuagues + hilo dental en el control de placa",
+      cover: "/media/fotos/articulos/portada1.png",
+      excerpt:
+        "Este estudio analiza cómo la combinación de cepillado manual, uso de hilo dental y enjuagues bucales (especialmente sin alcohol) mejora la eliminación de placa, la inflamación gingival y el sangrado comparado sólo con cepillado.",
+      url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC10837857/"
+    },
+    {
+      title: "Microbioma de las encías: qué revelan los hábitos de higiene oral",
+      cover: "/media/fotos/articulos/portada2.png",
+      excerpt:
+        "Esta investigación evalúa la relación entre los hábitos de higiene bucal (frecuencia, uso de hilo, sangrado) y la diversidad bacteriana gingival en adultos, ofreciendo nuevas perspectivas para adaptar las recomendaciones profesionales.",
+      url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC9542802/"
+    },
+    {
+      title: "Salud bucal y envejecimiento: cambios en la flora oral con la edad",
+      cover: "/media/fotos/articulos/portada3.png",
+      excerpt:
+        "El estudio examina cómo el envejecimiento influye en el equilibrio del microbioma oral y la salud de las encías, identificando los principales factores asociados al deterioro de la flora protectora y al aumento de bacterias patógenas.",
+      url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC3894074/"
+    },
+    {
+      title: "¿Estás cepillando bien? Un estudio sobre técnica y efectividad del cepillado",
+      cover: "/media/fotos/articulos/portada4.png",
+      excerpt:
+        "Una revisión que compara la eficacia de distintas técnicas de cepillado manual en la eliminación de placa y el cuidado gingival, destacando la importancia de la orientación profesional y la regularidad del cepillado.",
+      url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC10327354/"
+    }
+  ],
 
   videos: [
-  {
-    title: "Cepillado adecuado",
-    src: "/media/videos/cepillado-adecuado.mp4",
-  },
-  {
-    title: "Errores a evitar después de la profilaxis",
-    src: "/media/videos/errores-evitar-despues-profilaxis.mp4",
-  },
-  {
-    title: "Implementos para una buena higiene bucodental",
-    src: "/media/videos/implementos-higiene-bucodental.mp4",
-  },
-  {
-    title: "Limpieza de prótesis",
-    src: "/media/videos/limpieza-protesis.mp4",
-  },
-  {
-    title: "Solución a dientes apiñados, desalineados o separados",
-    src: "/media/videos/solucion-dientes-apinados-desalineados-separados.mp4",
-  },
-  {
-    title: "Uso adecuado del irrigador",
-    src: "/media/videos/uso-adecuado-irrigador.mp4",
-  },
-],
+    {
+      title: "Cepillado adecuado",
+      src: "/media/videos/cepillado-adecuado.mp4",
+    },
+    {
+      title: "Errores a evitar después de la profilaxis",
+      src: "/media/videos/errores-evitar-despues-profilaxis.mp4",
+    },
+    {
+      title: "Implementos para una buena higiene bucodental",
+      src: "/media/videos/implementos-higiene-bucodental.mp4",
+    },
+    {
+      title: "Limpieza de prótesis",
+      src: "/media/videos/limpieza-protesis.mp4",
+    },
+    {
+      title: "Solución a dientes apiñados, desalineados o separados",
+      src: "/media/videos/solucion-dientes-apinados-desalineados-separados.mp4",
+    },
+    {
+      title: "Uso adecuado del irrigador",
+      src: "/media/videos/uso-adecuado-irrigador.mp4",
+    },
+  ],
 
-equipoPro: [
-  {
-    name: "Paula Villegas Pérez",
-    img: "/media/fotos/equipo/paula.jpg",
-  },
-  {
-    name: "Rocío Sánchez Rosario",
-    img: "/media/fotos/equipo/rocio.jpg",
-  },
-  {
-    name: "Alberto Pérez Romeo",
-    img: "/media/fotos/equipo/alberto.jpg",
-  },
-  {
-    name: "Lina Buchely Duque",
-    img: "/media/fotos/equipo/lina.jpg",
-  },
-  {
-    name: "Alejandra Agudo Romero ",
-    img: "/media/fotos/equipo/alejandra.jpg",
-  },
-  {
-    name: "Nicol Mejía Briones",
-    img: "/media/fotos/equipo/nicol.jpg",
-  },
-],
-
+  equipoPro: [
+    {
+      name: "Paula Villegas Pérez",
+      img: "/media/fotos/equipo/paula.jpg",
+    },
+    {
+      name: "Rocío Sánchez Rosario",
+      img: "/media/fotos/equipo/rocio.jpg",
+    },
+    {
+      name: "Alberto Pérez Romeo",
+      img: "/media/fotos/equipo/alberto.jpg",
+    },
+    {
+      name: "Lina Buchely Duque",
+      img: "/media/fotos/equipo/lina.jpg",
+    },
+    {
+      name: "Alejandra Agudo Romero ",
+      img: "/media/fotos/equipo/alejandra.jpg",
+    },
+    {
+      name: "Nicol Mejía Briones",
+      img: "/media/fotos/equipo/nicol.jpg",
+    },
+  ],
 };
 
 /* ----------------- LAYOUT ----------------- */
@@ -157,18 +159,33 @@ function Header() {
 
   return (
     <header className="topbar">
-      <div className="container header-row">
-        {/* Marca / logo */}
-        <Link to="/" className="brand">
+      <div className="header-shell">
+        {/* LOGO */}
+        <Link to="/" className="header-logo">
           <div className="brand-box">
-            <img src="/LogoWeb.jpeg" alt="Edecosmile" />
+            <img
+              src={imgFromPublic("/LogoWeb.jpeg")}
+              alt="Edecosmile"
+              className="logo-img"
+            />
           </div>
           <span className="brand-name">{copy.brand}</span>
         </Link>
 
-        {/* Botón hamburguesa SOLO móvil */}
+        {/* NAV SCROLLEABLE (visible en ≥600px) */}
+        <nav className="header-nav-strip">
+          <ul className="header-nav-track">
+            {copy.nav.map((item) => (
+              <li key={item.label} className="header-nav-item">
+                <NavLink to={item.to}>{item.label}</NavLink>
+              </li>
+            ))}
+          </ul>
+        </nav>
+
+        {/* BURGER (solo móvil) */}
         <button
-          className="burger"
+          className="burger-btn"
           aria-label="Abrir menú"
           onClick={() => setMobileOpen((o) => !o)}
         >
@@ -176,20 +193,9 @@ function Header() {
           <span />
           <span />
         </button>
-
-        {/* Menú escritorio */}
-        <nav className="main-nav desktop-nav">
-          <ul>
-            {copy.nav.map((item) => (
-              <li key={item.label}>
-                <NavLink to={item.to}>{item.label}</NavLink>
-              </li>
-            ))}
-          </ul>
-        </nav>
       </div>
 
-      {/* Menú móvil desplegable */}
+      {/* MENÚ MÓVIL DESPLEGABLE */}
       <nav className={`mobile-drawer ${mobileOpen ? "open" : ""}`}>
         <ul>
           {copy.nav.map((item) => (
@@ -208,14 +214,16 @@ function Header() {
   );
 }
 
-
 function Footer() {
   return (
     <footer className="footer">
       <div className="container foot">
         <div className="brand foot-brand">
           <div className="brand-box small">
-            <img src="/LogoWeb.jpeg" alt="logo" />
+            <img
+              src={imgFromPublic("/LogoWeb.jpeg")}
+              alt="logo"
+            />
           </div>
           <span className="brand-name">{copy.brand}</span>
         </div>
@@ -231,87 +239,176 @@ function Footer() {
 function Home() {
   return (
     <>
+      {/* HERO */}
       <section className="hero">
-        <img src="/media/hero/hero.png" alt="hero" />
+        <img
+          src={imgFromPublic("/media/hero/hero.png")}
+          alt="hero"
+        />
         <div className="overlay" />
         <div className="center-card">
           <h1>¡BIENVENIDOS!</h1>
           <p>{copy.slogan}</p>
-          <Link to="/profesionales" className="btn primary">
+          <Link to="/sobre-nosotros" className="btn primary">
             {copy.cta}
           </Link>
         </div>
         <div className="reserve">
-          <Link to="/reservar" className="btn pill">
-            Reservar ahora
+          <Link to="/contacto" className="btn pill">
+            Contáctanos
           </Link>
         </div>
       </section>
 
-      <section className="section">
+      {/* ✅ SECCIONES REORGANIZADAS - Ya no incluye "Sobre nosotros" aquí */}
+      <section className="section services-preview">
         <div className="container">
-          <h2>Sobre nosotros</h2>
-          <p>
-            Bienvenidos a Edecosmile, somos una empresa con un objetivo claro:
-            promover una salud bucodental óptima para toda la población.
-            Creemos en la prevención, la educación y los hábitos responsables,
-            con un foco especial en la sostenibilidad.
+          <h2>Nuestros Servicios</h2>
+          <p className="intro-text">
+            En Edecosmile te ofrecemos educación y recursos para mantener 
+            una salud bucodental óptima de forma sostenible y responsable.
           </p>
-          <div className="socials">
-            <a href="#">Facebook</a> · <a href="#">Twitter</a> ·{" "}
-            <a href="#">LinkedIn</a> · <a href="#">Instagram</a>
+          
+          <div className="grid three">
+            <div className="card service-card">
+              <div className="service-icon">🦷</div>
+              <h3>Productos Recomendados</h3>
+              <p>Selección curada de productos de higiene dental de calidad profesional</p>
+              <Link to="/departamentos/productos" className="btn-link">Ver productos →</Link>
+            </div>
+            
+            <div className="card service-card">
+              <div className="service-icon">📹</div>
+              <h3>Vídeos Educativos</h3>
+              <p>Tutoriales interactivos sobre técnicas correctas de higiene bucodental</p>
+              <Link to="/departamentos/videos" className="btn-link">Ver vídeos →</Link>
+            </div>
+            
+            <div className="card service-card">
+              <div className="service-icon">📚</div>
+              <h3>Artículos Científicos</h3>
+              <p>Investigaciones y estudios sobre salud oral respaldados por la ciencia</p>
+              <Link to="/departamentos/articulos" className="btn-link">Leer artículos →</Link>
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="section">
+      {/* LLAMADA A LA ACCIÓN */}
+      <section className="section cta-section">
         <div className="container">
-          <h2>Instalaciones limpias y seguras.</h2>
-          <p>Envía tu declaración de salud.</p>
+          <div className="cta-box card">
+            <h2>¿Listo para mejorar tu salud bucodental?</h2>
+            <p>Conecta con nuestro equipo de profesionales</p>
+            <div className="cta-buttons">
+              <Link to="/departamentos/profesionales" className="btn primary">
+                Conoce al equipo
+              </Link>
+              <Link to="/contacto" className="btn secondary">
+                Contáctanos
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
     </>
   );
 }
 
-// opcional: deja la ruta /sobre-nosotros viva por si alguien entra directo
+// ✅ PÁGINA "SOBRE NOSOTROS" SEPARADA
 function SobreNosotros() {
   return (
     <Page title="Sobre nosotros">
-      <p>
-        Bienvenidos a Edecosmile, somos una empresa con un objetivo claro:
-        promover una salud bucodental óptima para toda la población. Creemos
-        en la prevención, la educación y los hábitos responsables, con un
-        foco especial en la sostenibilidad.
-      </p>
-      <div className="socials">
-        <a href="#">Facebook</a> · <a href="#">Twitter</a> ·{" "}
-        <a href="#">LinkedIn</a> · <a href="#">Instagram</a>
+      <div className="about-content">
+        <p className="lead">
+          Bienvenidos a Edecosmile, somos una empresa con un objetivo claro:
+          promover una salud bucodental óptima para toda la población.
+        </p>
+        
+        <h3>Nuestra Misión</h3>
+        <p>
+          Creemos en la prevención, la educación y los hábitos responsables,
+          con un foco especial en la sostenibilidad. Nuestro compromiso es
+          proporcionar información científica, recursos educativos y productos
+          de calidad para que todos puedan mantener una sonrisa saludable.
+        </p>
+        
+        <h3>Nuestros Valores</h3>
+        <ul className="values-list">
+          <li><strong>Educación:</strong> Compartimos conocimiento basado en evidencia científica</li>
+          <li><strong>Prevención:</strong> Promovemos hábitos que previenen problemas dentales</li>
+          <li><strong>Sostenibilidad:</strong> Cuidamos el planeta mientras cuidamos tu sonrisa</li>
+          <li><strong>Profesionalismo:</strong> Trabajamos con expertos en salud bucodental</li>
+        </ul>
+        
+        <h3>Síguenos en Redes Sociales</h3>
+        <div className="socials">
+          <a href="https://www.instagram.com/edecosmile?igsh=MWJibWFiYmlxbGRpMg==" 
+             target="_blank" 
+             rel="noopener noreferrer"
+             className="social-link instagram">
+            📱 Instagram
+          </a>
+          <a href="https://www.tiktok.com/@edecosmile8?_t=ZN-90wBSFQSaLG&_r=1" 
+             target="_blank" 
+             rel="noopener noreferrer"
+             className="social-link tiktok">
+            🎵 TikTok
+          </a>
+        </div>
       </div>
     </Page>
   );
 }
 
-function Profesionales() {
+// ✅ PÁGINA DE CONTACTO CLARAMENTE SEPARADA
+function Contacto() {
   return (
-    <Page title="Contáctanos">
-      <div className="grid two">
-        <div>
-          <h3>Ubicación</h3>
-          <p>Av. Fray A. Alcalde 10, 44100 Guad., Jal., México</p>
-          <p>Tel: +52-1-33-12345678 · Fax: +52-1-33-12345678</p>
-          <p>info@misitio.com</p>
+    <Page title="Contacto">
+      <div className="contact-content">
+        <p className="intro-text">
+          ¿Tienes alguna pregunta o sugerencia? Nos encantaría escucharte.
+          Rellena el formulario y te responderemos lo antes posible.
+        </p>
+        
+        <div className="grid two contact-grid">
+          <div className="contact-info card">
+            <h3>Información de Contacto</h3>
+            <div className="info-item">
+              <strong>📍 Ubicación:</strong>
+              <p className="muted" style={{ fontSize: '0.9rem', marginTop: '4px' }}>
+                Madrid, España 
+              </p>
+            </div>
+            <div className="info-item">
+              <strong>📞 Teléfono:</strong>
+              <p className="muted" style={{ fontSize: '0.9rem', marginTop: '4px' }}>
+                +34 633 511 919 
+              </p>
+            </div>
+            <div className="info-item">
+              <strong>✉️ Email:</strong>
+              <p>info@edecosmile.com</p>
+            </div>
+            <div className="info-item">
+              <strong>🕐 Horario:</strong>
+              <p>Lunes a Viernes: 9:00 - 18:00</p>
+              <p>Sábados: 10:00 - 14:00</p>
+            </div>
+          </div>
+          
+          <form className="contact-form card">
+            <h3>Envíanos un mensaje</h3>
+            <input type="text" placeholder="Nombre" required />
+            <input type="text" placeholder="Apellido" required />
+            <input type="email" placeholder="Email" required />
+            <input type="text" placeholder="Asunto" required />
+            <textarea rows={5} placeholder="Mensaje" required />
+            <button type="submit" className="btn primary">
+              Enviar mensaje
+            </button>
+          </form>
         </div>
-        <form className="contact-form">
-          <input placeholder="Nombre" />
-          <input placeholder="Apellido" />
-          <input placeholder="Email" />
-          <input placeholder="Asunto" />
-          <textarea rows={5} placeholder="Mensaje" />
-          <button type="button" className="btn primary">
-            Enviar
-          </button>
-        </form>
       </div>
     </Page>
   );
@@ -323,12 +420,14 @@ function ProyectoSostenible() {
       <div className="container">
         <h2>Proyecto sostenible</h2>
         <div className="body">
-          <p>
+          <p className="lead">
             Desde Edecosmile, estamos concienciados con el medio ambiente
             y tenemos en cuenta cumplir los objetivos de la agenda 2030; por ello
             nuestro crecimiento económico irá de la mano con la responsabilidad
             para generar un impacto positivo en el entorno.
           </p>
+          
+          <h3>Nuestro Compromiso Ambiental</h3>
           <p>Nos esforzamos para reducir nuestra huella digital ayudándonos de:</p>
           <ul className="bullets">
             <li>La optimización del uso de recursos naturales.</li>
@@ -343,8 +442,8 @@ function ProyectoSostenible() {
           </ul>
         </div>
         <div className="reserve">
-          <Link to="/reservar" className="btn pill">
-            Reservar ahora
+          <Link to="/contacto" className="btn pill">
+            Más información
           </Link>
         </div>
       </div>
@@ -372,29 +471,36 @@ function Resenas() {
   );
 }
 
-/* ---- Departamentos (con subnav interno) ---- */
+/* ---- Departamentos ---- */
 function DeptLayout({ title, children }) {
   return (
     <section className="section">
       <div className="container">
         <h2>{title}</h2>
-        {/* Quitado el submenú interno de departamentos */}
         <div className="body">{children}</div>
       </div>
     </section>
   );
 }
 
-
+// ✅ PÁGINA DE PROFESIONALES CORREGIDA - Solo muestra el equipo
 function DeptContacto() {
   return (
-    <DeptLayout title="Contacto con profesionales">
+    <DeptLayout title="Nuestro Equipo de Profesionales">
+      <p className="intro-text">
+        Conoce a los expertos que forman parte del equipo de Edecosmile.
+        Profesionales dedicados a la educación y prevención en salud bucodental.
+      </p>
+
       {/* Bloque equipo */}
       <div className="equipo-grid">
         {data.equipoPro.map((p, idx) => (
           <div key={idx} className="card pro-card">
             <div className="pro-photo">
-              <img src={p.img} alt={p.name} />
+              <img
+                src={imgFromPublic(p.img)}
+                alt={p.name}
+              />
             </div>
             <div className="pro-info">
               <strong className="pro-name">{p.name}</strong>
@@ -408,25 +514,25 @@ function DeptContacto() {
 
       {/* Formulario de contacto */}
       <div className="contact-wrapper card">
+        <h3>Colabora con Nosotros</h3>
         <p style={{ marginTop: 0 }}>
-          ¿Eres profesional? Escríbenos para colaborar en contenidos, casos clínicos o charlas.
+          ¿Eres profesional de la salud bucodental? Escríbenos para colaborar en contenidos, 
+          casos clínicos o charlas educativas.
         </p>
 
         <form className="contact-form" style={{ maxWidth: 600 }}>
-          <input placeholder="Nombre" />
-          <input placeholder="Centro / Empresa" />
-          <input placeholder="Email" />
-          <textarea rows={5} placeholder="Propuesta" />
-          <button className="btn primary" type="button">Enviar</button>
+          <input placeholder="Nombre completo" required />
+          <input placeholder="Centro / Empresa" required />
+          <input type="email" placeholder="Email" required />
+          <textarea rows={5} placeholder="Cuéntanos tu propuesta" required />
+          <button className="btn primary" type="submit">Enviar propuesta</button>
         </form>
       </div>
     </DeptLayout>
   );
 }
 
-
 function DeptMitos() {
-  // lista de mitos y realidad
   const faqs = [
     {
       q: "El azúcar es la única causa de caries",
@@ -435,7 +541,7 @@ Lo que realmente importa es cómo esos azúcares interactúan con las bacterias 
     },
     {
       q: "Si no hay ningún problema visible con mis dientes, no tengo que ir al dentista",
-      a: `Que tus dientes “se vean bien” no significa que todo esté sano. Muchas caries, problemas de encías e incluso infecciones empiezan sin dolor ni signos visibles.
+      a: `Que tus dientes "se vean bien" no significa que todo esté sano. Muchas caries, problemas de encías e incluso infecciones empiezan sin dolor ni signos visibles.
 Se recomienda una revisión y limpieza profesional al menos 2 veces al año para mantener la boca sana y prevenir problemas mayores.`,
     },
     {
@@ -447,7 +553,7 @@ Lo importante es hacerlo con la técnica correcta: movimiento suave, ángulo ade
       q: "Los colutorios no manchan los dientes",
       a: `Depende. La mayoría de los enjuagues bucales de uso diario no manchan.
 Pero algunos enjuagues con clorhexidina sí pueden provocar tinciones superficiales si se usan de forma prolongada o sin indicación profesional.
-Conclusión: sigue siempre las pautas de tu dentista, sobre todo si estás usando colutorios “especiales”.`,
+Conclusión: sigue siempre las pautas de tu dentista, sobre todo si estás usando colutorios "especiales".`,
     },
     {
       q: "Los cepillos duros limpian mejor",
@@ -462,24 +568,24 @@ Cuidar la boca también forma parte del cuidado del embarazo.`,
     },
     {
       q: "Es normal perder dientes con la edad",
-      a: `No. Perder dientes NO es “lo normal” del envejecimiento.
+      a: `No. Perder dientes NO es "lo normal" del envejecimiento.
 Generalmente se pierden por enfermedad de las encías, caries no tratadas o hábitos de higiene insuficientes.
 Con buena higiene diaria y revisiones periódicas puedes conservar tus dientes sanos durante toda la vida.`,
     },
     {
       q: "El bicarbonato no hace daño a los dientes",
-      a: `El bicarbonato se ha usado “para blanquear”, pero su uso casero y repetido puede desgastar el esmalte y aumentar la sensibilidad.
+      a: `El bicarbonato se ha usado "para blanquear", pero su uso casero y repetido puede desgastar el esmalte y aumentar la sensibilidad.
 Si quieres aclarar el color de los dientes, la vía segura es hacerlo con un profesional. Evita la automedicación estética, porque puedes hacer daño real sin darte cuenta.`,
     },
     {
       q: "El blanqueamiento dental debilita los dientes",
-      a: `Hecho correctamente por un profesional, el blanqueamiento no “adelgaza” ni “quema” el diente.
+      a: `Hecho correctamente por un profesional, el blanqueamiento no "adelgaza" ni "quema" el diente.
 El objetivo es reducir manchas y recuperar un tono más limpio, no limar el esmalte. En clínicas de confianza se controla el producto, el tiempo y la sensibilidad.`,
     },
     {
       q: "Las limpiezas dentales dañan los dientes",
       a: `La limpieza profesional elimina placa y sarro que el cepillo no quita. No desgasta el esmalte.
-Después de una limpieza, es posible notar algo de sensibilidad o encías más “despiertas”, pero eso no es daño: es una señal de que había inflamación previa y necesita controlarse, no una consecuencia negativa de la higiene.`,
+Después de una limpieza, es posible notar algo de sensibilidad o encías más "despiertas", pero eso no es daño: es una señal de que había inflamación previa y necesita controlarse, no una consecuencia negativa de la higiene.`,
     },
   ];
 
@@ -488,7 +594,7 @@ Después de una limpieza, es posible notar algo de sensibilidad o encías más �
       <div className="mitos-intro card" style={{ padding: "20px", marginBottom: "24px" }}>
         <h3 style={{ marginTop: 0 }}>Mitos dentales que seguro que no sabías</h3>
         <p className="muted" style={{ marginBottom: "12px" }}>
-          En Edecosmile  sabemos que una parte muy importante de la población española asegura tener miedo a su dentista. De hecho, hasta un 12%  de los adultos afirma ponerse nervioso antes de acudir a la visita de su dentista.
+          En Edecosmile sabemos que una parte muy importante de la población española asegura tener miedo a su dentista. De hecho, hasta un 12% de los adultos afirma ponerse nervioso antes de acudir a la visita de su dentista.
         </p>
         <p className="muted" style={{ marginBottom: "12px" }}>
           Con tanto estrés y ansiedad acumulados, no es de extrañar que a lo largo de los últimos años se hayan difundido algunos mitos falsos sobre la salud bucodental. 
@@ -515,22 +621,28 @@ Después de una limpieza, es posible notar algo de sensibilidad o encías más �
   );
 }
 
-
 function DeptProductos() {
   const items = Array.isArray(data?.productos) ? data.productos : [];
   return (
-    <DeptLayout title="Productos">
+    <DeptLayout title="Productos Recomendados">
+      <p className="intro-text">
+        Selección de productos de higiene bucodental de calidad profesional.
+        Cada producto ha sido elegido por su efectividad y respaldo científico.
+      </p>
+      
       {items.length === 0 ? (
         <div className="muted">
-          Aún no hay productos. Sube 12 fotos a <code>/public/media/fotos/productos/</code> con los nombres
-          <code> producto-01.jpg … producto-12.jpg</code> y rellena los enlaces en <code>data.productos</code>.
+          Aún no hay productos disponibles.
         </div>
       ) : (
         <div className="grid products">
           {items.map((p, idx) => (
             <div key={p.name || idx} className="card product">
               <div className="thumb square">
-                <img src={p.img} alt={p.name || `Producto ${idx + 1}`} />
+                <img
+                  src={imgFromPublic(p.img)}
+                  alt={p.name || `Producto ${idx + 1}`}
+                />
               </div>
               <div className="p-12" style={{ textAlign: "center" }}>
                 <h4 style={{ margin: "8px 0 4px" }}>
@@ -553,18 +665,24 @@ function DeptProductos() {
 
 function DeptArticulos() {
   return (
-    <DeptLayout title="Artículos">
+    <DeptLayout title="Artículos Científicos">
+      <p className="intro-text">
+        Investigaciones y estudios basados en evidencia científica sobre salud oral.
+        Mantente informado con las últimas publicaciones en el campo de la odontología.
+      </p>
+      
       <div className="grid two">
         {data.articulos.map((a) => (
           <article key={a.title} className="card article">
             <div className="thumb">
-              <img src={a.cover} alt={a.title} />
+              <img
+                src={imgFromPublic(a.cover)}
+                alt={a.title}
+              />
             </div>
             <div className="p-16">
               <h4>{a.title}</h4>
               <p className="muted">{a.excerpt}</p>
-
-              {/* Botón que redirige al enlace */}
               <a
                 href={a.url}
                 target="_blank"
@@ -582,11 +700,10 @@ function DeptArticulos() {
   );
 }
 
-
 function DeptVideos() {
   return (
-    <DeptLayout title="Vídeos">
-      <p>
+    <DeptLayout title="Vídeos Educativos">
+      <p className="intro-text">
         Desde el equipo de Edecosmile compartimos material audiovisual con consejos
         claros y directos para el cuidado diario: cepillado, encías sanas, prótesis,
         irrigador y más.
@@ -597,7 +714,7 @@ function DeptVideos() {
           <div key={v.title} className="card video">
             <div className="video-frame">
               <video
-                src={v.src}
+                src={imgFromPublic(v.src)}
                 controls
                 playsInline
                 style={{
@@ -629,8 +746,6 @@ function DeptVideos() {
   );
 }
 
-
-
 /* ----------------- Shared components ----------------- */
 function ReviewsCarousel({ items = [], auto = 5000 }) {
   const [i, setI] = useState(0);
@@ -661,7 +776,7 @@ function ReviewsCarousel({ items = [], auto = 5000 }) {
 
       <div className="slide card">
         <blockquote>
-          <p>“{it.text}”</p>
+          <p>"{it.text}"</p>
           <footer>— {it.name}</footer>
           <div className="stars">{"★".repeat(it.stars)}{"☆".repeat(5 - it.stars)}</div>
         </blockquote>
@@ -688,7 +803,8 @@ function ReviewForm({ onAdd }) {
   const [text, setText] = useState("");
   const [stars, setStars] = useState(5);
 
-  const handleSubmit = () => {
+  const handleSubmit = (e) => {
+    e.preventDefault();
     if (!name || !text) return alert("Por favor, rellena todos los campos.");
     const newReview = { name, text, stars: Number(stars) || 5 };
     onAdd(newReview);
@@ -700,31 +816,33 @@ function ReviewForm({ onAdd }) {
   return (
     <div className="card" style={{ marginTop: "40px", padding: "20px", maxWidth: "640px", marginInline: "auto" }}>
       <h3 style={{ textAlign: "center", marginBottom: "16px" }}>Deja tu reseña</h3>
-      <input
-        type="text"
-        placeholder="Tu nombre"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #ccc", marginBottom: "10px" }}
-      />
-      <textarea
-        rows="4"
-        placeholder="Tu reseña"
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #ccc", marginBottom: "10px" }}
-      />
-      <label>
-        Puntuación:{" "}
-        <select value={stars} onChange={(e) => setStars(e.target.value)} style={{ marginLeft: "6px" }}>
-          {[5,4,3,2,1].map((n) => (
-            <option key={n} value={n}>{n} ★</option>
-          ))}
-        </select>
-      </label>
-      <button onClick={handleSubmit} className="btn primary" style={{ display: "block", marginTop: "16px", width: "100%" }}>
-        Enviar reseña
-      </button>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          placeholder="Tu nombre"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #ccc", marginBottom: "10px" }}
+        />
+        <textarea
+          rows="4"
+          placeholder="Tu reseña"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #ccc", marginBottom: "10px" }}
+        />
+        <label>
+          Puntuación:{" "}
+          <select value={stars} onChange={(e) => setStars(e.target.value)} style={{ marginLeft: "6px" }}>
+            {[5,4,3,2,1].map((n) => (
+              <option key={n} value={n}>{n} ★</option>
+            ))}
+          </select>
+        </label>
+        <button type="submit" className="btn primary" style={{ display: "block", marginTop: "16px", width: "100%" }}>
+          Enviar reseña
+        </button>
+      </form>
     </div>
   );
 }
@@ -745,26 +863,18 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
-
-      {/* sigue existiendo, aunque no está en el header */}
       <Route path="/sobre-nosotros" element={<SobreNosotros />} />
-
+      <Route path="/contacto" element={<Contacto />} />
       <Route path="/resenas" element={<Resenas />} />
       <Route path="/reseñas" element={<Resenas />} />
-
       <Route path="/proyecto-sostenible" element={<ProyectoSostenible />} />
-      <Route path="/profesionales" element={<Profesionales />} />
-
-      {/* subpáginas "departamentos" expuestas individualmente */}
+      
+      {/* Departamentos */}
       <Route path="/departamentos/profesionales" element={<DeptContacto />} />
       <Route path="/departamentos/desmintiendo-mitos" element={<DeptMitos />} />
       <Route path="/departamentos/productos" element={<DeptProductos />} />
       <Route path="/departamentos/articulos" element={<DeptArticulos />} />
       <Route path="/departamentos/videos" element={<DeptVideos />} />
-
-      {/* la vista general de /departamentos como tal ya no la necesitamos en el header,
-          pero la dejo accesible */}
-      <Route path="/departamentos" element={<DeptLayout title="Departamentos"><p>Explora las secciones.</p></DeptLayout>} />
     </Routes>
   );
 }
