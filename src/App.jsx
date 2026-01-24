@@ -253,11 +253,6 @@ function Home() {
             {copy.cta}
           </Link>
         </div>
-        <div className="reserve">
-          <Link to="/contacto" className="btn pill">
-            Contáctanos
-          </Link>
-        </div>
       </section>
 
       {/* ✅ SECCIONES REORGANIZADAS - Ya no incluye "Sobre nosotros" aquí */}
@@ -383,7 +378,7 @@ function Contacto() {
             <div className="info-item">
               <strong>📞 Teléfono:</strong>
               <p className="muted" style={{ fontSize: '0.9rem', marginTop: '4px' }}>
-                +34 633 511 919 
+                +34 633 511 919
               </p>
             </div>
             <div className="info-item">
@@ -440,11 +435,6 @@ function ProyectoSostenible() {
               sostenible en nuestro entorno.
             </li>
           </ul>
-        </div>
-        <div className="reserve">
-          <Link to="/contacto" className="btn pill">
-            Más información
-          </Link>
         </div>
       </div>
     </section>

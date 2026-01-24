@@ -52,6 +52,12 @@ img {
   padding: 0 20px;
 }
 
+@media (max-width: 600px) {
+  .container {
+    padding: 0 16px;
+  }
+}
+
 /* ===== Utilidades ===== */
 .hstack {
   display: flex;
@@ -352,11 +358,27 @@ img {
   }
 
   .brand-name {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
   }
 
   .header-shell {
     padding: 0.5rem 0.75rem;
+  }
+}
+
+/* Tablet y pantallas medianas */
+@media (min-width: 601px) and (max-width: 900px) {
+  .header-nav-strip {
+    max-width: 600px;
+  }
+  
+  .header-nav-item a {
+    font-size: 0.75rem;
+    padding: 0.35rem 0.6rem;
+  }
+  
+  .brand-name {
+    font-size: 0.85rem;
   }
 }
 
@@ -423,20 +445,18 @@ img {
   font-size: clamp(14px, 2vw, 18px);
 }
 
-.reserve {
-  position: absolute;
-  right: 24px;
-  bottom: 24px;
-}
-
 @media (max-width: 600px) {
-  .reserve {
-    right: 16px;
-    bottom: 16px;
-  }
-
   .center-card {
     padding: 28px 20px;
+    width: min(90vw, 400px);
+  }
+  
+  .center-card h1 {
+    font-size: clamp(24px, 8vw, 40px);
+  }
+  
+  .center-card p {
+    font-size: 14px;
   }
 }
 
@@ -772,6 +792,12 @@ ul {
 @media (min-width: 600px) {
   .grid.two {
     grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (min-width: 768px) {
+  .grid.three {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
